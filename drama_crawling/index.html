@@ -5,27 +5,162 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Page Title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body>div{
+            display: flex;
+        }
+        .drama-info>div{
+            display: flex;
+            width: 500px;
+            padding: 10px 4px;
+        }
+        .drama-info>div>div{
+            width: 200px;
+            flex-grow:1;
+        }
+        .drama-info>div>input{
+            flex-grow:2;
+        }
+        .people-info>div{
+            display: flex;
+            padding: 10px 4px;
+        }
+    </style>
 </head>
 <body>
-    <input type="text" id="dramaName"><button onclick="search()">확인</button>
+    <div>
+        <div class="drama-info">
+            <div>
+                <input type="text" id="name"><button onclick="search()">찾기</button>
+            </div>
+            <div>
+                <div>OO드라마 </div><input type="text" id="class">
+            </div>
+            <div>
+                <div>장르 </div><input type="text" id="genre">
+            </div>
+            <div>
+                <div>방송국 </div><input type="text" id="broadcastStation">
+            </div>
+            <div>
+                <div>방영요일 </div><input type="text" id="broadcastDay">
+            </div>
+            <div>
+                <div>방영시간 </div><input type="text" id="broadTime">
+            </div>
+            <div>
+                <div>방영시작일 </div><input type="text" id="broadcastStart">
+            </div>
+            <div>
+                <div>방영종료일 </div><input type="text" id="broadcastEnd">
+            </div>
+            <div>
+                <div>방영횟수 </div><input type="text" id="broadcastCount">
+            </div>
+            <div>
+                <div>드라마소개 </div><input type="text" id="synopsis">
+            </div>
+            <div>
+                <div>1200x480 이미지 </div><input type="file" id="posterPath_1200_480">
+                <div>
+                    <img id="image_section"src="" alt="">
+                </div>
+            </div>
+            <div>
+                <div>360x210 이미지 </div><input type="file" id="posterPath_360_210">
+            </div>
+            <div>
+                <div>89x128 이미지 </div><input type="file" id="posterPath_89_128">
+            </div>
+        </div>
+        <div class="people-info">
+            <div>
+                <input type="text" id="peo0"><button onclick="">찾기</button>
+                <input type="text" id="peo0_role">
+            </div>
+        </div>
+    </div>
+        
+        
     <script
     src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     crossorigin="anonymous"></script>
     <script>
+        $("#posterPath_1200_480").change(function(){
+            if (this.files && this.files[0]) {
+            var reader = new FileReader();
+    
+            reader.onload = function (e) {
+                $('#image_section').attr('src', e.target.result);
+            }
+    
+            reader.readAsDataURL(this.files[0]);
+           }
+        })
         function search(){
-            console.log($("#dramaName").val());
             $.ajax({
                 url:"http://localhost:3303/crawling",
                 data:{
-                    dramaName:$("#dramaName").val()
-                    // dramaName:$("#dramaName").val()
+                    dramaName:$("#name").val()
                 },
                 type:"get",
                 success:function(res){
                     console.log(res);
+                    
+                    if(res.broadcastDay){
+                        res.broadcastTime = ExtractString(res.broadcastDay,/\d+:\d+/);
+                        res.broadcastDay = RemoveString(res.broadcastDay,/\s\W.\s\d+:\d+/,"");
+                        $("#broadTime").val(res.broadcastTime);
+                        $("#broadcastDay").val(res.broadcastDay);                        
+                    }
+                    if(res.broadcastStation){
+                        $("#broadcastStation").val(res.broadcastStation);
+                    }
+                    if(res.broadcastStart){
+                        res.broadcastStart = RemoveString(res.broadcastStart,/[.]/g,"-");
+                        var val = res.broadcastStart.split("~");
+                        $("#broadcastStart").val(val[0]);
+                        (val[1]) ?  $("#broadcastEnd").val(val[1]):$("#broadcastEnd").val("0000-00-00");
+                    }
+                    if(res.broadcastCount){
+                        res.broadcastCount = ExtractString(res.broadcastCount,/[0-9]+/g);
+                        $("#broadcastCount").val(res.broadcastCount);
+                    }
+                    if(res.synopsis){
+                        $("#synopsis").val(res.synopsis);
+                    }
+                    if(res.actor){
+                        var str = '<div>출연</div>';
+                        for(var i in res.actor){
+                           if(res.actor[i]){
+                               str+=`<div>\
+                                        <input type='text' id='peo0' value='${res.actor[i].name}'><button onclick=''>찾기</button>\
+                                        <input type='text' id='peo0_role'  value='${res.actor[i].role}'>\
+                                    </div>`;
+                                $(".people-info").html(str);
+                           }
+                        }
+                    }
+                    if(res.production_crew){
+                        var str = '<div>제작</div>';
+                        for(var i in res.production_crew){
+                            str+=`<div>\
+                                        <input type='text' id='peo0' value='${res.production_crew[i].name}'><button onclick=''>찾기</button>\
+                                        <input type='text' id='peo0_role'  value='${res.production_crew[i].role}'>\
+                                    </div>`;
+                        }
+                        $(".people-info").append(str);                         
+                    }
                 }
             });
+        }
+
+        function ExtractString(string,pattern){
+            return ((val=(pattern).exec(string))== null) ? "":val[0];
+        }
+        function RemoveString(string,pattern,option){
+            return string.replace(pattern,option);
         }
     </script>
 </body>
