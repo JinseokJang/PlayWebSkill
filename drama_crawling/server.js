@@ -1,9 +1,14 @@
 const express = require('express');
 const request = require('request');
-
+const bodyParser = require('body-parser');
 const cheerio = require('cheerio');
 
 var app = express();
+
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json());
+
+require('./routes/db')(app);
 
 app.get("/crawling",(req,res)=>{
     let option = {
@@ -72,6 +77,6 @@ app.get("/",(req,res)=>{
     res.sendFile("/index.html",{root:__dirname});
 })
 
-app.listen(3303,()=>{
+app.listen(8081,()=>{
     console.log("server open");
 })

@@ -6,78 +6,203 @@
     <title>Page Title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body>div{
+        body>.main{
             display: flex;
         }
-        .drama-info>div{
-            display: flex;
+        .main>div:nth-child(2){
+            border-left: 1px solid;
+            border-right: 1px solid;
+            height: calc(100vh);
+        }
+        /* 공통 */
+        .drama-info{
             width: 500px;
+        }
+        .people-info{
+            width: 500px;
+        }
+        .people-register{
+            width: 500px;
+        }
+        .file-input{
+            width: 175px;
+        }
+        /* drama-info */
+        .drama-info>form>div{
+            display: flex;
             padding: 10px 4px;
         }
-        .drama-info>div>div{
+        .drama-info>form>div>div{
             width: 200px;
             flex-grow:1;
         }
-        .drama-info>div>input{
+        .drama-info>form>div>input{
             flex-grow:2;
         }
-        .people-info>div{
+        /* people-info */
+        .people-info>form>div{
             display: flex;
+            padding: 5px 4px;
+        }
+        .people-info>form>div>input{
+            width: 85px;
+        }
+        /* people-register */
+        .people-register>form>div{
             padding: 10px 4px;
+            display: flex;
+        }
+        .people-register>form>div>div{
+            width: 200px;
+            flex-grow:1;
+        }
+        .people-register>form>div>input{
+            flex-grow:2;
+        }
+
+        .modal{
+            display: none;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.5);
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        .modal-container{
+            position: absolute;
+            margin: auto;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 400px;
+            height: 400px;
+            background: white;
+            margin: auto;
+            flex-wrap: wrap;
+        }
+        .modal-head{
+            display: flex;
+            justify-content: flex-end;      
+            padding: 9px;
+            font-size: 12px;
+            background: #e0e0e0;
+        }
+        .modal-head>div{
+            padding: 0px 10px;
+        }
+        .modal-content{
+            display: flex;
+            overflow: auto;
+            flex-wrap: wrap;
+            height: 366px;
+        }
+        .modal-content>div{
+            width: 33.3%;
+            text-align: center;
+            padding: 10px 0px;
+        }
+        .modal-content>div>img{
+            width: 74px;
+            height: 107px;
         }
     </style>
 </head>
 <body>
-    <div>
+    <div class="main">
         <div class="drama-info">
-            <div>
-                <input type="text" id="name"><button onclick="search()">찾기</button>
-            </div>
-            <div>
-                <div>OO드라마 </div><input type="text" id="class">
-            </div>
-            <div>
-                <div>장르 </div><input type="text" id="genre">
-            </div>
-            <div>
-                <div>방송국 </div><input type="text" id="broadcastStation">
-            </div>
-            <div>
-                <div>방영요일 </div><input type="text" id="broadcastDay">
-            </div>
-            <div>
-                <div>방영시간 </div><input type="text" id="broadTime">
-            </div>
-            <div>
-                <div>방영시작일 </div><input type="text" id="broadcastStart">
-            </div>
-            <div>
-                <div>방영종료일 </div><input type="text" id="broadcastEnd">
-            </div>
-            <div>
-                <div>방영횟수 </div><input type="text" id="broadcastCount">
-            </div>
-            <div>
-                <div>드라마소개 </div><input type="text" id="synopsis">
-            </div>
-            <div>
-                <div>1200x480 이미지 </div><input type="file" id="posterPath_1200_480">
+            <div>드라마 등록</div>
+            <form action="dramaRegister">
                 <div>
-                    <img id="image_section"src="" alt="">
+                    <input type="text" id="name"><input type="button" onclick="search()" value="찾기">
                 </div>
-            </div>
-            <div>
-                <div>360x210 이미지 </div><input type="file" id="posterPath_360_210">
-            </div>
-            <div>
-                <div>89x128 이미지 </div><input type="file" id="posterPath_89_128">
-            </div>
+                <div>
+                    <div>OO드라마 </div><input type="text" id="class">
+                </div>
+                <div>
+                    <div>장르 </div><input type="text" id="genre">
+                </div>
+                <div>
+                    <div>방송국 </div><input type="text" id="broadcastStation">
+                </div>
+                <div>
+                    <div>방영요일 </div><input type="text" id="broadcastDay">
+                </div>
+                <div>
+                    <div>방영시간 </div><input type="text" id="broadTime">
+                </div>
+                <div>
+                    <div>방영시작일 </div><input type="text" id="broadcastStart">
+                </div>
+                <div>
+                    <div>방영종료일 </div><input type="text" id="broadcastEnd">
+                </div>
+                <div>
+                    <div>방영횟수 </div><input type="text" id="broadcastCount">
+                </div>
+                <div>
+                    <div>드라마소개 </div><input type="text" id="synopsis">
+                </div>
+                <div>
+                    <div>1200x480 이미지 </div><input  class= "file-input" type="file" id="posterPath_1200_480">
+                </div>
+                <div>
+                    <div>360x210 이미지 </div><input  class= "file-input"type="file" id="posterPath_360_210">
+                </div>
+                <div>
+                    <div>89x128 이미지 </div><input class= "file-input" type="file" id="posterPath_89_128">
+                </div>
+                <div>
+                    <input type="button" onclick="dramaRegister();" value="등록">
+                </div>
+            </form>
         </div>
         <div class="people-info">
-            <div>
-                <input type="text" id="peo0"><button onclick="">찾기</button>
-                <input type="text" id="peo0_role">
+            <div>드라마 출연배우 등록</div>
+            <form id="actorRegister"></form>
+        </div>
+        <div class="people-register">
+            <div> 배우등록 </div>
+            <form id="peopleRegister">
+                <div>
+                    <div>이름</div><input type="text" name="name" placeholder="이름">
+                </div>
+                <div>
+                    <div>직업</div><input type="text" name="job" placeholder="직업">
+                </div>
+                <div>
+                    <div>74X107 이미지</div><input class= "file-input" type="file" name="photoPath_74_107">
+                </div>
+                <div>
+                    <div>160x160 이미지</div><input class= "file-input" type="file" name="photoPath_160_160">
+                </div>
+                <div>
+                    <input type="button" onclick="peopleRegister();" value="등록">
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal">
+        <div class="modal-container">
+            <div class="modal-head" > 
+                <div>
+                    <select name="" id="role">
+                        <option value="7">여자배우</option>
+                        <option value="6">남자배우</option>
+                        <option value="5">보조작가</option>
+                        <option value="4">작가</option>
+                        <option value="3">PD</option>
+                        <option value="2">조연출</option>
+                        <option value="1">연출</option>
+                    </select>
+                </div>
+                <div onclick="modalClose();">x</div>
             </div>
+            <div class="modal-content"></div>
         </div>
     </div>
         
@@ -87,6 +212,27 @@
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     crossorigin="anonymous"></script>
     <script>
+        function peopleRegister(){
+            var form = $("#peopleRegister")[0];
+            var data = new FormData(form);
+            $.ajax({
+                type: "POST",
+                enctype: 'multipart/form-data',
+                url: "http://localhost:8081/db/peopleInfo",
+                data: data,
+                processData: false,
+                contentType: false,
+                cache: false,
+                timeout: 600000,
+                type:'post',
+                success:function(){
+                    alert('ok');
+                },
+                error:function(){
+                    alert('not ok');
+                }
+            })
+        }
         $("#posterPath_1200_480").change(function(){
             if (this.files && this.files[0]) {
             var reader = new FileReader();
@@ -100,7 +246,7 @@
         })
         function search(){
             $.ajax({
-                url:"http://localhost:3303/crawling",
+                url:"http://localhost:8081/crawling",
                 data:{
                     dramaName:$("#name").val()
                 },
@@ -130,32 +276,68 @@
                     if(res.synopsis){
                         $("#synopsis").val(res.synopsis);
                     }
-                    if(res.actor){
-                        var str = '<div>출연</div>';
+                    if(res.actor.length){
+                        var str = '\
+                                   <div>출연</div>';
                         for(var i in res.actor){
                            if(res.actor[i]){
                                str+=`<div>\
-                                        <input type='text' id='peo0' value='${res.actor[i].name}'><button onclick=''>찾기</button>\
-                                        <input type='text' id='peo0_role'  value='${res.actor[i].role}'>\
-                                    </div>`;
-                                $(".people-info").html(str);
-                           }
-                        }
-                    }
-                    if(res.production_crew){
+                                        <input type='text' id='actor${i}' value='${res.actor[i].name}'><input  type="button" value ="찾기" onclick='SearchPeople("${res.actor[i].name}",this)'>\
+                                        <input type='text' id='actor${i}_role'  value='${res.actor[i].role}'>\
+                                        <span type='text' id='actor${i}_serial' role_v=""></span>\
+                                        </div>`;
+                                        $("#actorRegister").html(str);
+                                    }
+                                }
+                            }
+                    if(res.production_crew.length){
                         var str = '<div>제작</div>';
                         for(var i in res.production_crew){
                             str+=`<div>\
-                                        <input type='text' id='peo0' value='${res.production_crew[i].name}'><button onclick=''>찾기</button>\
-                                        <input type='text' id='peo0_role'  value='${res.production_crew[i].role}'>\
+                                    <input type='text' id='produ${i}' value='${res.production_crew[i].name}'><input type="button" value ="찾기" onclick='SearchPeople("${res.production_crew[i].name}",this)'>\
+                                    <input type='text' id='produ${i}_role'  value='${res.production_crew[i].role}'>\
+                                    <span type='text' id='produ${i}_serial'  value=''></span>\
                                     </div>`;
                         }
-                        $(".people-info").append(str);                         
+                        str+='<div><input style="width:100%" type="button" value="등록"></div>'
+                        $("#actorRegister").append(str);                         
                     }
                 }
             });
         }
+        function SearchPeople(name,ss){
+            var selector = $(ss).siblings('span')[0].id;
+            $.ajax({
+                url:"http://localhost:8081/db/peopleInfo",
+                type:"get",
+                data:{
+                    "peopleName":name
+                },
+                success:function(res){
+                    var str = "";
+                    for(i in res){
+                        str +="<div onclick=resgistPeopleSerial("+res[i].serial+","+selector+")>\
+                                    <img src='http://server.cyclogic.net/~amcake"+res[i].photoPath_74_107.slice(1)+"'>\
+                                    <div>"+res[i].job+"</div>\
+                                    <div>"+res[i].name+"</div>\
+                                </div>";
+                    }
+                    $(".modal-content").html(str);
+                    $(".modal").css("display","block");
+                }
+            })
+        }
+        function resgistPeopleSerial(serial,selector){
+            var role_v = $("#role option:selected").val();
+            var role = $("#role option:selected").text();
+            $(selector).text(serial+","+role);
+            $(selector).prop('role_v',role_v);
+            $(".modal").css("display","none");
+        }
+        function modalClose(){
+            $(".modal").css("display","none");
 
+        }
         function ExtractString(string,pattern){
             return ((val=(pattern).exec(string))== null) ? "":val[0];
         }
