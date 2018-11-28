@@ -4,6 +4,7 @@ module.exports = function(app){
      * input peopleName => output peoInfo
      * @param {String} peopleName
      */
-    app.route('/db/peopleInfo').get(dbController.getPeopleInfo);
-    app.route('/db/peopleInfo').post(dbController.postPeopleInfo);
+    app.route('/db/peopleInfo').get(dbController.retrievePeopleInfo);
+    app.route('/db/peopleInfo').post(dbController.createPeopleInfo);
+    app.route('/db/dramaInfo').post(dbController.createDramaInfo);
 }

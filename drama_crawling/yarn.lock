@@ -172,6 +172,11 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
   integrity sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=
 
+croppie@^2.6.2:
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/croppie/-/croppie-2.6.2.tgz#d605ceeffb4aea281f72a63c9a0a305db0a46e50"
+  integrity sha512-uvQI8XliWNWiquFCgIjwNoWCjbnQ/qvyitwIj8F4PjwrH40vniPmKSXmXaIbiWNojiraCi08PovKXfs8YXjMGg==
+
 css-select@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/css-select/-/css-select-1.2.0.tgz#2b3a110539c5355f1cd8d314623e870b121ec858"

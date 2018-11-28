@@ -5,8 +5,9 @@ const cheerio = require('cheerio');
 
 var app = express();
 
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use(express.static(__dirname+"/public"));
 
 require('./routes/db')(app);
 
@@ -45,7 +46,6 @@ app.get("/crawling",(req,res)=>{
             var role= $(this).find('.txt_name>a').text().trim();
             var name= $(this).find('.sub_name').text().trim();
             if(role){
-                console.log(role);
                 if(name=="출연"||name=="특별출연"){
                     json.actor[i] = {name:role,role:name};
                 }else{
@@ -74,7 +74,7 @@ app.get("/crawling",(req,res)=>{
 })
 
 app.get("/",(req,res)=>{
-    res.sendFile("/index.html",{root:__dirname});
+    res.sendFile("/index.html",{root:__dirname+"/public"});
 })
 
 app.listen(8081,()=>{

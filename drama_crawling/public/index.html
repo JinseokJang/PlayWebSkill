@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Page Title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./assets/croppie/croppie.css">
     <style>
         body>.main{
             display: flex;
@@ -12,7 +13,6 @@
         .main>div:nth-child(2){
             border-left: 1px solid;
             border-right: 1px solid;
-            height: calc(100vh);
         }
         /* 공통 */
         .drama-info{
@@ -26,6 +26,14 @@
         }
         .file-input{
             width: 175px;
+        }
+        .file-image{
+            height: 200px;
+            justify-content: center;
+        }
+        .file-image>img{
+            height: 100%;
+            width: auto;
         }
         /* drama-info */
         .drama-info>form>div{
@@ -110,54 +118,76 @@
             width: 74px;
             height: 107px;
         }
+        .picture>.modal-container{
+            width: 100%;
+            height: 100%;
+        }
+        .picture>.modal-container>.modal-content{
+            height:100%;
+        }
+        .picture>.modal-container>.modal-content>div{
+            width: 100%;
+        }
     </style>
 </head>
 <body>
     <div class="main">
         <div class="drama-info">
             <div>드라마 등록</div>
-            <form action="dramaRegister">
+            <form id="createDrama">
                 <div>
-                    <input type="text" id="name"><input type="button" onclick="search()" value="찾기">
+                    <input type="text" id="name" name="name"><input type="button" onclick="search()" value="찾기">
                 </div>
                 <div>
-                    <div>OO드라마 </div><input type="text" id="class">
+                    <div>OO드라마 </div><input type="text" id="class" name="class">
                 </div>
                 <div>
-                    <div>장르 </div><input type="text" id="genre">
+                    <div>장르 </div><input type="text" id="genre" name="genre">
                 </div>
                 <div>
-                    <div>방송국 </div><input type="text" id="broadcastStation">
+                    <div>방송국 </div><input type="text" id="broadcastStation" name="broadcastStation">
                 </div>
                 <div>
-                    <div>방영요일 </div><input type="text" id="broadcastDay">
+                    <div>방영요일 </div><input type="text" id="broadcastDay" name="broadcastDay">
                 </div>
                 <div>
-                    <div>방영시간 </div><input type="text" id="broadTime">
+                    <div>방영시간 </div><input type="text" id="broadTime" name="broadTime">
                 </div>
                 <div>
-                    <div>방영시작일 </div><input type="text" id="broadcastStart">
+                    <div>방영시작일 </div><input type="text" id="broadcastStart" name="broadcastStart">
                 </div>
                 <div>
-                    <div>방영종료일 </div><input type="text" id="broadcastEnd">
+                    <div>방영종료일 </div><input type="text" id="broadcastEnd" name="broadcastEnd">
                 </div>
                 <div>
-                    <div>방영횟수 </div><input type="text" id="broadcastCount">
+                    <div>방영횟수 </div><input type="text" id="broadcastCount" name="broadcastCount">
                 </div>
                 <div>
-                    <div>드라마소개 </div><input type="text" id="synopsis">
+                    <div>드라마소개 </div><input type="text" id="synopsis" name="synopsis">
                 </div>
                 <div>
-                    <div>1200x480 이미지 </div><input  class= "file-input" type="file" id="posterPath_1200_480">
+                    <div>1200x480 이미지 </div>
+                    <input type="file" class= "file-input"  value="이미지 등록" onchange="SetImage(this,0)">
+                </div>
+                <div class="file-image">
+                    <img id="posterPath_1200_480_img" alt="">
                 </div>
                 <div>
-                    <div>360x210 이미지 </div><input  class= "file-input"type="file" id="posterPath_360_210">
+                    <div>360x210 이미지 </div>
+                    <input type="file" class= "file-input"  value="이미지 등록" onchange="SetImage(this,1)">
+                </div>
+                <div class="file-image">
+                    <img id="posterPath_360_210_img" alt="">
                 </div>
                 <div>
-                    <div>89x128 이미지 </div><input class= "file-input" type="file" id="posterPath_89_128">
+                    <div>89x128 이미지 </div>
+                    <input type="file" class= "file-input" value="이미지 등록" onchange="SetImage(this,2)">
+                </div>
+                <div class="file-image">
+                    <img id="posterPath_89_128_img" alt="">
                 </div>
                 <div>
-                    <input type="button" onclick="dramaRegister();" value="등록">
+                    <input type="button" onclick="CreateDrama();" value="등록">
                 </div>
             </form>
         </div>
@@ -167,7 +197,7 @@
         </div>
         <div class="people-register">
             <div> 배우등록 </div>
-            <form id="peopleRegister">
+            <form id="createPeople">
                 <div>
                     <div>이름</div><input type="text" name="name" placeholder="이름">
                 </div>
@@ -175,18 +205,25 @@
                     <div>직업</div><input type="text" name="job" placeholder="직업">
                 </div>
                 <div>
-                    <div>74X107 이미지</div><input class= "file-input" type="file" name="photoPath_74_107">
+                    <input type="file" class= "file-input"  value="이미지 등록" onchange="SetImage(this,3)">
+                </div>
+                <div class="file-image">
+                    <img id="photoPath_74_107_img" alt="">
                 </div>
                 <div>
-                    <div>160x160 이미지</div><input class= "file-input" type="file" name="photoPath_160_160">
+                    <input type="file" class= "file-input"  value="이미지 등록" onchange="SetImage(this,4)">
+                </div>
+                <div class="file-image">
+                    <img id="photoPath_160_160_img" alt="">
                 </div>
                 <div>
-                    <input type="button" onclick="peopleRegister();" value="등록">
+                    <input type="button" onclick="CreatePeople();" value="등록">
                 </div>
             </form>
         </div>
+       
     </div>
-    <div class="modal">
+    <div class="modal people">
         <div class="modal-container">
             <div class="modal-head" > 
                 <div>
@@ -205,15 +242,58 @@
             <div class="modal-content"></div>
         </div>
     </div>
-        
-        
+    <div class="modal picture">
+        <div class="modal-container">
+            <div class="modal-head"></div>
+            <div class="modal-content">
+                <div class="picture"></div>
+                <!-- <img id="croppie" src="" alt=""> -->
+                <div>
+                    <input type="button" onclick="cropImage()" value="크롭">
+                </div>
+            </div>
+        </div>
+    </div>
     <script
     src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     crossorigin="anonymous"></script>
+    <script src="./assets/croppie/croppie.min.js"></script>
     <script>
-        function peopleRegister(){
-            var form = $("#peopleRegister")[0];
+        var targetImage;
+        var targetFile;
+        var file={
+            posterPath_1200_480:undefined,
+            posterPath_360_210:undefined,
+            posterPath_89_128:undefined,  
+            photoPath_74_107:undefined,
+            photoPath_160_160:undefined
+        }
+        function CreateDrama(){
+            var form = $("#createDrama")[0];
+            var data = new FormData(form);
+            data.append('posterPath_1200_480',file.posterPath_1200_480);
+            data.append('posterPath_360_210',file.posterPath_360_210);
+            data.append('posterPath_89_128',file.posterPath_89_128);
+            $.ajax({
+                type: "POST",
+                enctype: 'multipart/form-data',
+                url:'http://localhost:8081/db/dramaInfo',
+                data:data,
+                processData:false,
+                contentType:false,
+                cache:false,
+                timeout:600000,
+                success:function(){
+                    alert('ok');
+                },
+                error:function(){
+                    alert('not ok');
+                }
+            });
+        }
+        function CreatePeople(){
+            var form = $("#createPeople")[0];
             var data = new FormData(form);
             $.ajax({
                 type: "POST",
@@ -224,7 +304,6 @@
                 contentType: false,
                 cache: false,
                 timeout: 600000,
-                type:'post',
                 success:function(){
                     alert('ok');
                 },
@@ -233,17 +312,63 @@
                 }
             })
         }
-        $("#posterPath_1200_480").change(function(){
-            if (this.files && this.files[0]) {
-            var reader = new FileReader();
+
+        function cropImage(){
+            targetImage.result('blob').then(function(blob){
+                var key = Object.keys(file)[targetFile];
+                var fileObj = new File([blob], `${key}.jpg`, {
+                    type: "image/jpeg",
+                });
+                file[key]=fileObj;
+                $(`#${key}_img`).attr("src",URL.createObjectURL(blob));
+                $(".modal.picture").css("display","none");
+                $('.croppie-container').remove();
+                console.log(file);
+            })
     
-            reader.onload = function (e) {
-                $('#image_section').attr('src', e.target.result);
-            }
-    
-            reader.readAsDataURL(this.files[0]);
+        }
+        function SetImage(input,id){
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var str = ' <img id="croppie" src="" alt="">';
+                    $(".modal-content>.picture").html(str);
+                    $(`#croppie`).attr('src', e.target.result);
+                    var el = document.getElementById(`croppie`);
+                    var viewport={};
+                    switch(id){
+                        case 0:
+                            viewport.width = 1200;
+                            viewport.height = 480;
+                        break;
+                        case 1:
+                            viewport.width = 360;
+                            viewport.height = 210;
+                        break;
+                        case 2:
+                            viewport.width = 89;
+                            viewport.height = 128;
+                        break;
+                        case 3:
+                            viewport.width = 160;
+                            viewport.height = 160;
+                        break;
+                        case 4:
+                            viewport.width = 74;
+                            viewport.height = 107;
+                        break;
+                    }
+                    targetImage = new Croppie((el),{
+                        viewport: viewport,
+                        boundary: { width: 1200, height: 480 },
+                        showZoomer: false,
+                    })
+                    targetFile = id;
+                    $(".modal.picture").css("display","block");
+                }
+                reader.readAsDataURL(input.files[0]);
            }
-        })
+        }
         function search(){
             $.ajax({
                 url:"http://localhost:8081/crawling",
@@ -322,8 +447,8 @@
                                     <div>"+res[i].name+"</div>\
                                 </div>";
                     }
-                    $(".modal-content").html(str);
-                    $(".modal").css("display","block");
+                    $(".modal.people>.modal-container>.modal-content").html(str);
+                    $(".modal.people").css("display","block");
                 }
             })
         }
@@ -332,10 +457,10 @@
             var role = $("#role option:selected").text();
             $(selector).text(serial+","+role);
             $(selector).prop('role_v',role_v);
-            $(".modal").css("display","none");
+            $(".modal.people").css("display","none");
         }
         function modalClose(){
-            $(".modal").css("display","none");
+            $(".modal.people").css("display","none");
 
         }
         function ExtractString(string,pattern){
