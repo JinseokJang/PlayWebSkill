@@ -42,6 +42,13 @@ module.exports = {
         value = await syncQuery(query);
         result(null,path);
     },
+    retrieveDrama : (dramaName,result)=>{
+        var query = `SELECT * FROM drama WHERE name = ?`;
+        connection.query(query,dramaName,function(err,res){
+            if(err) result(err,null);
+            else    result(null,res);
+        })
+    },
     createDrama : async(dramaInfo,result)=>{
         var query = `SELECT serial FROM drama ORDER BY drama.serial DESC LIMIT 1`;
         var value = await syncQuery(query);
@@ -54,6 +61,22 @@ module.exports = {
         query = `INSERT INTO drama(serial,name,class,genre,broadcastStation,broadcastDay,broadcastTime,broadcastStart,broadcastEnd,broadcastCount,synopsis,posterPath_1200_480,posterPath_360_210,posterPath_89_128)\
                  VALUES (${serial},"${dramaInfo.name}","${dramaInfo.class}","${dramaInfo.genre}","${dramaInfo.broadcastStation}","${dramaInfo.broadcastDay}","${dramaInfo.broadTime}","${dramaInfo.broadcastStart}","${dramaInfo.broadcastEnd}",${dramaInfo.broadcastCount},"${dramaInfo.synopsis}","${path[0]}","${path[1]}","${path[2]}")`;
         value = await syncQuery(query);
-        result(null,path);
-    }   
+        result(null,{path:path,serial:serial});
+    },
+    createRelation : (people,result)=>{
+        var query = `INSERT INTO relation(dramaSerial,personSerial,relationType,characterName) VALUES `;
+        var peopleLen = people.length-1;
+        for(i in people){
+            if(peopleLen==i){
+                query += `${people[i]}`;
+            }   
+            else{
+                query += `${people[i]}, `;
+            }
+        }
+        connection.query(query,function(err,res){
+            if(err) result(err,null);
+            else    result(null,res);
+        })
+    }
 }

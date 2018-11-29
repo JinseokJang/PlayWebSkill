@@ -136,7 +136,10 @@
             <div>드라마 등록</div>
             <form id="createDrama">
                 <div>
-                    <input type="text" id="name" name="name"><input type="button" onclick="search()" value="찾기">
+                    <input type="text" id="name" name="name"><input type="button" onclick="Search()" value="찾기">
+                </div>
+                <div>
+                    <div>드라마 시리얼</div><input type="text" id="serial">
                 </div>
                 <div>
                     <div>OO드라마 </div><input type="text" id="class" name="class">
@@ -151,7 +154,7 @@
                     <div>방영요일 </div><input type="text" id="broadcastDay" name="broadcastDay">
                 </div>
                 <div>
-                    <div>방영시간 </div><input type="text" id="broadTime" name="broadTime">
+                    <div>방영시간 </div><input type="text" id="broadcastTime" name="broadcastTime">
                 </div>
                 <div>
                     <div>방영시작일 </div><input type="text" id="broadcastStart" name="broadcastStart">
@@ -244,7 +247,9 @@
     </div>
     <div class="modal picture">
         <div class="modal-container">
-            <div class="modal-head"></div>
+            <div class="modal-head">
+                    <div onclick="modalClose();">x</div>
+            </div>
             <div class="modal-content">
                 <div class="picture"></div>
                 <!-- <img id="croppie" src="" alt=""> -->
@@ -284,8 +289,9 @@
                 contentType:false,
                 cache:false,
                 timeout:600000,
-                success:function(){
-                    alert('ok');
+                success:function(res){
+                    console.log(res);
+                    $("#serial").val(res);
                 },
                 error:function(){
                     alert('not ok');
@@ -295,6 +301,8 @@
         function CreatePeople(){
             var form = $("#createPeople")[0];
             var data = new FormData(form);
+            data.append('photoPath_74_107',file.photoPath_74_107);
+            data.append('photoPath_160_160',file.photoPath_160_160);
             $.ajax({
                 type: "POST",
                 enctype: 'multipart/form-data',
@@ -312,6 +320,34 @@
                 }
             })
         }
+        function CreateRelation(){
+            var people = [];
+            $(".people").each(function(i,el){
+                var tmp = $(el).find('span');
+                var dramaserial = $("#serial").val();
+                var personserial = tmp.attr('personserial');
+                var relationtype = tmp.attr('relationtype');
+                var charactername = tmp.attr('charactername');
+                // personserial,dramaserial,relationtype,charactername);
+                if(personserial){
+                    people.push(`(${dramaserial},${personserial},${relationtype},"${charactername}")`);
+                }
+            })
+            console.log(people);
+            $.ajax({
+                url:'http://localhost:8081/db/relation',
+                type:'post',
+                data:{
+                    people:people
+                },
+                success:function(){
+                    alert('ok');
+                },
+                error:function(){
+                    alert('not ok');
+                }
+            });
+        }
 
         function cropImage(){
             targetImage.result('blob').then(function(blob){
@@ -323,10 +359,10 @@
                 $(`#${key}_img`).attr("src",URL.createObjectURL(blob));
                 $(".modal.picture").css("display","none");
                 $('.croppie-container').remove();
-                console.log(file);
             })
     
         }
+
         function SetImage(input,id){
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
@@ -369,69 +405,99 @@
                 reader.readAsDataURL(input.files[0]);
            }
         }
-        function search(){
+        
+        function Search(){
+            DBDramaSearch().then((resovle)=>{
+
+            },(reject)=>{
+                DaumDramaSearch();
+            }
+            );
+        }
+
+        function DBDramaSearch(){
+            return new Promise((resolve,reject)=>{
+                $.ajax({
+                    url:"http://localhost:8081/db/dramaInfo",
+                    data:{
+                        dramaName:$("#name").val()
+                    },
+                    type:"get",
+                    success:function(res){
+                        var drama = res[0];
+                        if(drama){
+                            $("#broadcastCount").val(drama.broadcastCount);
+                            $("#broadcastDay").val(drama.broadcastDay);
+                            $("#broadcastEnd").val(drama.broadcastEnd);
+                            $("#broadcastStart").val(drama.broadcastStart);
+                            $("#broadcastStation").val(drama.broadcastStation);
+                            $("#broadcastTime").val(drama.broadcastTime);
+                            $("#class").val(drama.class);
+                            $("#genre").val(drama.genre);
+                            $("#name").val(drama.name);
+                            $("#synopsis").val(drama.synopsis);
+                            $("#serial").val(drama.serial);
+                            resolve(console.log("DBDramaSearch() ok"));
+                        }
+                        else{
+                            reject(console.log("DBDramaSearch() not ok"));
+                        }
+                    }
+                })
+            })
+        }
+
+        function DaumDramaSearch(){
             $.ajax({
-                url:"http://localhost:8081/crawling",
+                url:"http://localhost:8081/daum/dramaInfo",
                 data:{
                     dramaName:$("#name").val()
                 },
                 type:"get",
                 success:function(res){
-                    console.log(res);
-                    
-                    if(res.broadcastDay){
-                        res.broadcastTime = ExtractString(res.broadcastDay,/\d+:\d+/);
-                        res.broadcastDay = RemoveString(res.broadcastDay,/\s\W.\s\d+:\d+/,"");
-                        $("#broadTime").val(res.broadcastTime);
-                        $("#broadcastDay").val(res.broadcastDay);                        
-                    }
-                    if(res.broadcastStation){
-                        $("#broadcastStation").val(res.broadcastStation);
-                    }
-                    if(res.broadcastStart){
-                        res.broadcastStart = RemoveString(res.broadcastStart,/[.]/g,"-");
-                        var val = res.broadcastStart.split("~");
-                        $("#broadcastStart").val(val[0]);
-                        (val[1]) ?  $("#broadcastEnd").val(val[1]):$("#broadcastEnd").val("0000-00-00");
-                    }
-                    if(res.broadcastCount){
-                        res.broadcastCount = ExtractString(res.broadcastCount,/[0-9]+/g);
-                        $("#broadcastCount").val(res.broadcastCount);
-                    }
-                    if(res.synopsis){
-                        $("#synopsis").val(res.synopsis);
-                    }
-                    if(res.actor.length){
-                        var str = '\
-                                   <div>출연</div>';
-                        for(var i in res.actor){
-                           if(res.actor[i]){
-                               str+=`<div>\
-                                        <input type='text' id='actor${i}' value='${res.actor[i].name}'><input  type="button" value ="찾기" onclick='SearchPeople("${res.actor[i].name}",this)'>\
-                                        <input type='text' id='actor${i}_role'  value='${res.actor[i].role}'>\
-                                        <span type='text' id='actor${i}_serial' role_v=""></span>\
-                                        </div>`;
-                                        $("#actorRegister").html(str);
-                                    }
-                                }
+                    var drama = res;
+                    $("#broadcastCount").val(drama.broadcastCount);
+                    $("#broadcastDay").val(drama.broadcastDay);
+                    $("#broadcastEnd").val(drama.broadcastEnd);
+                    $("#broadcastStart").val(drama.broadcastStart);
+                    $("#broadcastStation").val(drama.broadcastStation);
+                    $("#broadcastTime").val(drama.broadcastTime);
+                    $("#synopsis").val(drama.synopsis);
+                    $("#serial").val(drama.serial);
+                    if(drama.actor.length){
+                        var str = "<div>출연배우</div>"
+                        for(i in drama.actor){
+                            if(drama.actor[i]){
+                                str+=`<div class="people" id="actor_${i}">
+                                        <input type='text' value='${drama.actor[i].name}'><input  type="button" value ="찾기" onclick='PeopleSerach(this)'>\
+                                        <input type='text' value='${drama.actor[i].role}'>\
+                                        <span type='text'></span>\
+                                      </div>`;
                             }
-                    if(res.production_crew.length){
-                        var str = '<div>제작</div>';
-                        for(var i in res.production_crew){
-                            str+=`<div>\
-                                    <input type='text' id='produ${i}' value='${res.production_crew[i].name}'><input type="button" value ="찾기" onclick='SearchPeople("${res.production_crew[i].name}",this)'>\
-                                    <input type='text' id='produ${i}_role'  value='${res.production_crew[i].role}'>\
-                                    <span type='text' id='produ${i}_serial'  value=''></span>\
-                                    </div>`;
                         }
-                        str+='<div><input style="width:100%" type="button" value="등록"></div>'
-                        $("#actorRegister").append(str);                         
+                        $("#actorRegister").html(str);
+                    }
+                    if(drama.crew.length){
+                        var str = "<div>제작진</div>";
+                        for(i in drama.crew){
+                            if(drama.crew[i]){
+                                str+=`<div class="people" id="crew_${i}">
+                                        <input type='text' value='${drama.crew[i].name}'><input type="button" value ="찾기" onclick='PeopleSerach(this)'>\
+                                        <input type='text' value='${drama.crew[i].role}'>\
+                                        <span type='text'  value=''></span>\
+                                      </div>`
+                            }
+                        }
+                        str+='<div><input onclick="CreateRelation()"style="width:100%" type="button" value="등록"></div>';
+                        $("#actorRegister").append(str);  
                     }
                 }
-            });
+            })
         }
-        function SearchPeople(name,ss){
-            var selector = $(ss).siblings('span')[0].id;
+
+        function PeopleSerach(select){
+            var selector = $(select).parent()[0].id;
+            var name = $(select).parent().children('input').eq(0).val();
             $.ajax({
                 url:"http://localhost:8081/db/peopleInfo",
                 type:"get",
@@ -441,7 +507,7 @@
                 success:function(res){
                     var str = "";
                     for(i in res){
-                        str +="<div onclick=resgistPeopleSerial("+res[i].serial+","+selector+")>\
+                        str +="<div onclick=SetPeopleSerial("+res[i].serial+","+selector+")>\
                                     <img src='http://server.cyclogic.net/~amcake"+res[i].photoPath_74_107.slice(1)+"'>\
                                     <div>"+res[i].job+"</div>\
                                     <div>"+res[i].name+"</div>\
@@ -452,22 +518,25 @@
                 }
             })
         }
-        function resgistPeopleSerial(serial,selector){
-            var role_v = $("#role option:selected").val();
-            var role = $("#role option:selected").text();
-            $(selector).text(serial+","+role);
-            $(selector).prop('role_v',role_v);
+        
+        function SetPeopleSerial(serial,selector){
+            var tmp = $(selector).children('span').eq(0);
+            var role_text  = $("#role option:selected").text();
+            var characterName = $(selector).children('input').eq(2).val();
+            var relationType = $("#role option:selected").val();
+
+            tmp.text(serial+","+role_text);
+            tmp.attr('personSerial',serial);
+            tmp.attr('characterName',characterName);
+            tmp.attr('relationType',relationType);
+
             $(".modal.people").css("display","none");
         }
+     
+
         function modalClose(){
             $(".modal.people").css("display","none");
-
-        }
-        function ExtractString(string,pattern){
-            return ((val=(pattern).exec(string))== null) ? "":val[0];
-        }
-        function RemoveString(string,pattern,option){
-            return string.replace(pattern,option);
+            $(".modal.picture").css("display","none");
         }
     </script>
 </body>

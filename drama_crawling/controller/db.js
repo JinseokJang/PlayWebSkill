@@ -32,6 +32,7 @@ module.exports = {
     },
     createPeopleInfo:(req,res)=>{
         uploadPeople(req,res,function(err){
+            console.log(req.files);
             db.createPeople(req.body,(err,result)=>{
                 if(err) throw err;
                 else {
@@ -50,31 +51,46 @@ module.exports = {
         })
         res.end();
     },
+    retrieveDramaInfo:(req,res)=>{
+        console.log(req.query.dramaName);
+        db.retrieveDrama(req.query.dramaName,(err,result)=>{
+            if(err) throw err;
+            else res.send(result);
+        })
+    },
     createDramaInfo:(req,res)=>{
         uploadDrama(req,res,function(err){
             if(err) console.log(err);
             db.createDrama(req.body,(err,result)=>{
-                console.log(req.body);
                 if(err) throw err;
                 else {
                     if(req.files.posterPath_1200_480){
-                        fs.rename(__dirname+"/../"+req.files.posterPath_1200_480[0].path,__dirname+"/."+result[0],function(err){
+                        fs.rename(__dirname+"/../"+req.files.posterPath_1200_480[0].path,__dirname+"/."+result.path[0],function(err){
                             if(err) throw err;
                         })
                     }
                     if(req.files.posterPath_360_210){
-                        fs.rename(__dirname+"/../"+req.files.posterPath_360_210[0].path,__dirname+"/."+result[1],function(err){
+                        fs.rename(__dirname+"/../"+req.files.posterPath_360_210[0].path,__dirname+"/."+result.path[1],function(err){
                             if(err) throw err;
                         })
                     }
                     if(req.files.posterPath_89_128){
-                        fs.rename(__dirname+"/../"+req.files.posterPath_89_128[0].path,__dirname+"/."+result[2],function(err){
+                        fs.rename(__dirname+"/../"+req.files.posterPath_89_128[0].path,__dirname+"/."+result.path[2],function(err){
                             if(err) throw err;
                         })
                     }
+                    res.json(result.serial);
+                    res.end();
                 }
             })
         })
-        res.end();
+    },
+    createRelation:(req,res)=>{
+        db.createRelation(req.body.people,(err,result)=>{
+            if(err) throw err;
+            else{
+                res.end();
+            }
+        })
     }
 }
