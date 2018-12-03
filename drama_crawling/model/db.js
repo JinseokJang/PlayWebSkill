@@ -78,5 +78,35 @@ module.exports = {
             if(err) result(err,null);
             else    result(null,res);
         })
+    },
+    retrieveRelation : (dramaSerial,result)=>{
+        var query = `SELECT * FROM relation INNER JOIN people ON relation.personSerial = people.serial WHERE dramaSerial = ${dramaSerial} order by relation.serial`;
+        connection.query(query,function(err,res){
+            if(err) result(err,null);
+            else    result(null,res);
+        })
+    },
+    createRating : (rating,result) => {
+        var query = `INSERT INTO rating(dramaSerial,episode,airedDate,rating) VALUES `;
+        var ratingLen = rating.length - 1;
+        for(i in rating){
+            if(ratingLen==i){
+                query +=`${rating[i]}`;
+            }
+            else{
+                query +=`${rating[i]},`;
+            }
+        }
+        connection.query(query,function(err,res){
+            if(err) result(err,null);
+            else    result(null,res);
+        })
+    },
+    retrieveRating:(dramaSerial,result)=>{
+        var query = `SELECT * FROM rating WHERE dramaSerial=${dramaSerial} ORDER by episode desc`;
+        connection.query(query,function(err,res){
+            if(err) result(err,null);
+            else    result(null,res);
+        })
     }
 }

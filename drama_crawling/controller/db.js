@@ -92,5 +92,26 @@ module.exports = {
                 res.end();
             }
         })
+    },
+    retrieveRelation:(req,res)=>{
+        db.retrieveRelation(req.query.dramaSerial,(err,result)=>{
+            if(err) throw err;
+            else res.send(result);
+        })
+    },
+    createRating:(req,res)=>{
+        console.log(req.body);
+        db.createRating(req.body.rating,(err,result)=>{
+            if(err) throw err;
+            else{
+                res.end();
+            }
+        })
+    },
+    retrieveRating:(req,res)=>{
+        db.retrieveRating(req.query.dramaSerial,(err,result)=>{
+            if(err) throw err;
+            else res.send(result);
+        })
     }
 }

@@ -9,20 +9,19 @@
     <style>
         body>.main{
             display: flex;
+            flex-wrap: wrap;
         }
         .main>div:nth-child(2){
             border-left: 1px solid;
             border-right: 1px solid;
         }
         /* 공통 */
-        .drama-info{
-            width: 500px;
-        }
-        .people-info{
-            width: 500px;
+        .drama-info,.people-info,.rating-info,.people-register{
+            width: 33%;
+            border-bottom: 1px solid;
         }
         .people-register{
-            width: 500px;
+            border-right: 1px solid;
         }
         .file-input{
             width: 175px;
@@ -128,12 +127,15 @@
         .picture>.modal-container>.modal-content>div{
             width: 100%;
         }
+        .hidden{
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="main">
         <div class="drama-info">
-            <div>드라마 등록</div>
+            <div>DRAMA TABLE</div>
             <form id="createDrama">
                 <div>
                     <input type="text" id="name" name="name"><input type="button" onclick="Search()" value="찾기">
@@ -189,17 +191,23 @@
                 <div class="file-image">
                     <img id="posterPath_89_128_img" alt="">
                 </div>
-                <div>
-                    <input type="button" onclick="CreateDrama();" value="등록">
-                </div>
             </form>
+            <div>
+                <input class="hidden" type="button" onclick="CreateDrama();" value="등록">
+            </div>
         </div>
         <div class="people-info">
-            <div>드라마 출연배우 등록</div>
+            <div>RELATION TABLE</div>
             <form id="actorRegister"></form>
+            <div><input class="hidden" onclick="CreateRelation()" type="button" value="등록"></div>
+        </div>
+        <div class="rating-info">
+            <div>RATING TABLE</div>
+            <form id="dramaRating"></form>
+            <div><input class="hidden" onclick="CreateRating()" type="button" value="등록"></div>
         </div>
         <div class="people-register">
-            <div> 배우등록 </div>
+            <div>PEOPLE TABLE</div>
             <form id="createPeople">
                 <div>
                     <div>이름</div><input type="text" name="name" placeholder="이름">
@@ -219,10 +227,10 @@
                 <div class="file-image">
                     <img id="photoPath_160_160_img" alt="">
                 </div>
-                <div>
-                    <input type="button" onclick="CreatePeople();" value="등록">
-                </div>
             </form>
+            <div>
+                <input type="button" onclick="CreatePeople();" value="등록">
+            </div>
         </div>
        
     </div>
@@ -254,7 +262,7 @@
                 <div class="picture"></div>
                 <!-- <img id="croppie" src="" alt=""> -->
                 <div>
-                    <input type="button" onclick="cropImage()" value="크롭">
+                    <input type="button" onclick="CropImage()" value="크롭">
                 </div>
             </div>
         </div>
@@ -274,6 +282,9 @@
             photoPath_74_107:undefined,
             photoPath_160_160:undefined
         }
+        /**
+         * 
+        */
         function CreateDrama(){
             var form = $("#createDrama")[0];
             var data = new FormData(form);
@@ -322,9 +333,9 @@
         }
         function CreateRelation(){
             var people = [];
+            var dramaserial = $("#serial").val();
             $(".people").each(function(i,el){
                 var tmp = $(el).find('span');
-                var dramaserial = $("#serial").val();
                 var personserial = tmp.attr('personserial');
                 var relationtype = tmp.attr('relationtype');
                 var charactername = tmp.attr('charactername');
@@ -348,8 +359,38 @@
                 }
             });
         }
+        function CreateRating(){
+            var rating = [];
+            var dramaserial = $("#serial").val();
+            $(".rating").each( function(i,el){
+                var tmp = $(el).find('span');
+                var rate = tmp.attr('rating');
+                var ep     = tmp.attr('ep');
+                var date   = tmp.attr('date');
+                // dramaSerial,episode,airedDate,rating
+                rating.push(`(${dramaserial},${ep},${date},${rate})`);
+            })
+            console.log(rating);
+            $.ajax({
+                url:'http://localhost:8081/db/rating',
+                type:'post',
+                data:{
+                    rating:rating
+                },
+                success:function(){
+                    alert('ok');
+                },
+                error:function(){
+                    alert('not ok');
+                }
+            })
 
-        function cropImage(){
+        }
+
+        /**
+         * image editor
+        */
+        function CropImage(){
             targetImage.result('blob').then(function(blob){
                 var key = Object.keys(file)[targetFile];
                 var fileObj = new File([blob], `${key}.jpg`, {
@@ -362,7 +403,6 @@
             })
     
         }
-
         function SetImage(input,id){
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
@@ -405,17 +445,21 @@
                 reader.readAsDataURL(input.files[0]);
            }
         }
-        
+        /**
+         * search
+        */
         function Search(){
-            DBDramaSearch().then((resovle)=>{
-
+            SearchDBDrama().then((resovle)=>{
+                $(".hidden").css("display","none");
+                SearchDBRelation();
+                SearchDBRating();
             },(reject)=>{
-                DaumDramaSearch();
+                $(".hidden").css("display","block");
+                SearchDaumDrama();
             }
             );
         }
-
-        function DBDramaSearch(){
+        function SearchDBDrama(){
             return new Promise((resolve,reject)=>{
                 $.ajax({
                     url:"http://localhost:8081/db/dramaInfo",
@@ -437,17 +481,70 @@
                             $("#name").val(drama.name);
                             $("#synopsis").val(drama.synopsis);
                             $("#serial").val(drama.serial);
-                            resolve(console.log("DBDramaSearch() ok"));
+                            resolve(console.log("SearchDBDrama() ok"));
                         }
                         else{
-                            reject(console.log("DBDramaSearch() not ok"));
+                            reject(console.log("SearchDBDrama() not ok"));
                         }
                     }
                 })
             })
         }
-
-        function DaumDramaSearch(){
+        function SearchDBRelation(){
+            $.ajax({
+                url:"http://localhost:8081/db/relation",
+                data:{
+                    dramaSerial:$("#serial").val()
+                },
+                type:"get",
+                success:function(res){
+                    var relation = res;
+                    var actor = "<div>출연배우</div>";
+                    var crew = "";
+                    for(i in relation){
+                        if(relation[i]==7||relation[i]==6){
+                            actor+=`<div class="people" id="actor_${i}">
+                                        <input type='text' value='${relation[i].name}'><input  type="button" value ="찾기" onclick='SearchPeople(this)'>\
+                                        <input type='text' value='${relation[i].characterName}'>\
+                                        <span type='text'>${relation[i].personSerial}</span>\
+                                    </div>`;
+                        }else{
+                            crew+=`<div class="people" id="crew_${i}">
+                                        <input type='text' value='${relation[i].name}'><input type="button" value ="찾기" onclick='SearchPeople(this)'>\
+                                        <input type='text' value='${relation[i].characterName}'>\
+                                        <span type='text'  value=''>${relation[i].personSerial}</span>\
+                                    </div>`
+                        }
+                    }
+                    $("#actorRegister").html(actor);
+                    $("#actorRegister").append(crew);
+                }
+            })
+        }
+        function SearchDBRating(){
+            $.ajax({
+                url:"http://localhost:8081/db/rating",
+                data:{
+                    dramaSerial:$("#serial").val()
+                },
+                type:"get",
+                success:function(res){
+                    var rating = res;
+                    rating.reverse()
+                    console.log(rating)
+                    var str = "<div>시청률</div>";
+                    for(i in rating){
+                        str+=`<div class="rating">
+                                <span ep= "${rating[i].episode}" date="${rating[i].airedDate}" rating="${rating[i].rating}">  ${rating[i].episode} 회 </span>
+                                <input class="" value='${rating[i].airedDate}'>
+                                <input class="" value='${rating[i].rating}'>
+                                </div>`
+                    }
+                    $("#dramaRating").html(str);
+                }
+            })
+        }
+        function SearchDaumDrama(){
             $.ajax({
                 url:"http://localhost:8081/daum/dramaInfo",
                 data:{
@@ -456,6 +553,7 @@
                 type:"get",
                 success:function(res){
                     var drama = res;
+                    console.log(drama);
                     $("#broadcastCount").val(drama.broadcastCount);
                     $("#broadcastDay").val(drama.broadcastDay);
                     $("#broadcastEnd").val(drama.broadcastEnd);
@@ -469,7 +567,7 @@
                         for(i in drama.actor){
                             if(drama.actor[i]){
                                 str+=`<div class="people" id="actor_${i}">
-                                        <input type='text' value='${drama.actor[i].name}'><input  type="button" value ="찾기" onclick='PeopleSerach(this)'>\
+                                        <input type='text' value='${drama.actor[i].name}'><input  type="button" value ="찾기" onclick='SearchPeople(this)'>\
                                         <input type='text' value='${drama.actor[i].role}'>\
                                         <span type='text'></span>\
                                       </div>`;
@@ -478,24 +576,36 @@
                         $("#actorRegister").html(str);
                     }
                     if(drama.crew.length){
-                        var str = "<div>제작진</div>";
+                        var str = "";
                         for(i in drama.crew){
                             if(drama.crew[i]){
                                 str+=`<div class="people" id="crew_${i}">
-                                        <input type='text' value='${drama.crew[i].name}'><input type="button" value ="찾기" onclick='PeopleSerach(this)'>\
+                                        <input type='text' value='${drama.crew[i].name}'><input type="button" value ="찾기" onclick='SearchPeople(this)'>\
                                         <input type='text' value='${drama.crew[i].role}'>\
                                         <span type='text'  value=''></span>\
                                       </div>`
                             }
                         }
-                        str+='<div><input onclick="CreateRelation()"style="width:100%" type="button" value="등록"></div>';
                         $("#actorRegister").append(str);  
+                    }
+                    if(drama.rating.length){
+                        drama.rating.reverse();
+                        var str = "<div>시청률</div>";
+                        var episode = 0;
+                        for(i in drama.rating){
+                            episode++;
+                            str+=`<div class="rating">
+                                    <span ep= "${episode}" date="${drama.rating[i].date}" rating="${drama.rating[i].rating}">  ${episode} 회 </span>
+                                    <input class="" value='${drama.rating[i].date}'>
+                                    <input class="" value='${drama.rating[i].rating}'>
+                                  </div>`
+                        }
+                        $("#dramaRating").html(str);
                     }
                 }
             })
         }
-
-        function PeopleSerach(select){
+        function SearchPeople(select){
             var selector = $(select).parent()[0].id;
             var name = $(select).parent().children('input').eq(0).val();
             $.ajax({
@@ -518,7 +628,7 @@
                 }
             })
         }
-        
+
         function SetPeopleSerial(serial,selector){
             var tmp = $(selector).children('span').eq(0);
             var role_text  = $("#role option:selected").text();
@@ -532,12 +642,27 @@
 
             $(".modal.people").css("display","none");
         }
-     
-
         function modalClose(){
             $(".modal.people").css("display","none");
             $(".modal.picture").css("display","none");
         }
+
+        Date.prototype.format = function (f) {
+
+            if (!this.valueOf()) return " ";
+            var d = this;
+            return f.replace(/(yyyy|yy|MM|dd|KS|KL|ES|EL|HH|hh|mm|ss|a\/p)/gi, function ($1) {
+                switch ($1) {
+                    case "yyyy": return d.getFullYear(); // 년 (4자리)
+                    case "MM": return (d.getMonth() + 1).zf(2); // 월 (2자리)
+                    case "dd": return d.getDate().zf(2); // 일 (2자리)
+                    default: return $1;
+                }
+            });
+        };
+        String.prototype.string = function (len) { var s = '', i = 0; while (i++ < len) { s += this; } return s; };
+        String.prototype.zf = function (len) { return "0".string(len - this.length) + this; };
+        Number.prototype.zf = function (len) { return this.toString().zf(len); };
     </script>
 </body>
 </html>

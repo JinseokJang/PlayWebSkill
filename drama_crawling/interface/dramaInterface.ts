@@ -1,5 +1,5 @@
 
-const drama= {
+const drama = {
     broadcastCount: undefined,
     broadcastDay: undefined,
     broadcastEnd: undefined,
