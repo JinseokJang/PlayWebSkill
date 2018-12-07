@@ -4,6 +4,7 @@ const MiniCssExtractPlguin = require("mini-css-extract-plugin");
 module.exports = {
     module: {
       rules: [
+        // loder 등록 (js,html,css....)
         {
           test: /\.js$/,
           exclude: /node_modules/,
@@ -27,6 +28,7 @@ module.exports = {
       ]
     },
     plugins: [
+      // plugin 
         new HtmlWebPackPlugin({
           template: "./src/index.html",
           filename: "./index.html"

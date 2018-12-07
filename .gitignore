@@ -1,2 +1,3 @@
-/drama_crawling/node_modules/
-/lesson0_webpack/node_modules/
+/*/node_modules/
+/assets/
+/dist/

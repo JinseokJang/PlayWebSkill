@@ -1,0 +1,12 @@
+[
+    {
+        "id":1,
+        "name":"Writer 1",
+        "posts":[1,3]
+    },
+    {
+        "id":2,
+        "name":"Writer 2",
+        "posts":[2,4,5]
+    }
+]
